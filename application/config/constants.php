@@ -89,3 +89,4 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
  */
 defined('MD5_PREFIX') OR define('MD5_PREFIX', 'pc');
 defined('SYSTEM_SESSION_DIR') OR define('SYSTEM_SESSION_DIR', '/data/appdata/company_ci/session');
+defined('UPLOADED_DATA') OR define('UPLOADED_DATA', '/data/appdata/company_ci/upload/images/');

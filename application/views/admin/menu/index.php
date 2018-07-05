@@ -46,7 +46,9 @@
             </div>
         </div>
         <div>
-          <button  id="button-add" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加 </button>
+          <button  id="add" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加 </button>
+          <button id="export" type="button" class="btn btn-primary">下载模版</button>
+          <button id="import" type="button" class="btn btn-primary">导入模版</button>
         </div>
         <div class="row">
             <div class="col-lg-6">

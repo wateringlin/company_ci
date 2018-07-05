@@ -55,7 +55,7 @@ class Menu extends MY_Controller {
 
     $res = $this->menu->paginate($where, $page, $pageSize);
     $data = array();
-    if ($res['data']) {
+    if ($res['data'] !== false) {
       // 处理需要转化为中文的数据，这里使用引用的方式，下面改了$item就会改变$res['data']的数据了
       foreach ($res['data'] as &$item) {
         if (is_array($item)) {
@@ -163,6 +163,75 @@ class Menu extends MY_Controller {
       return show(-1, '排序失败-'.implode(',', $errors));
     } else {
       return show(0, '排序成功');
+    }
+  }
+
+  /**
+   * 读取csv文件，导入数据
+   */
+  public function import() {
+    // 获取上传的文件
+    if (!$_FILES['file']) {
+      return;
+    }
+    $file = $_FILES['file'];
+
+    // 可以先在服务器写死一个文件路径测试
+    $file_path = '/data/www/van/data/juanzong.csv';
+
+    // 定义获取文件的每列标题，只用于循环，不赋值
+    $keylist = array();
+    $keylist['name'] = 0; // 名称
+    $keylist['m'] = 2; // 模块名
+    $keylist['c'] = 3; // 控制器名
+    $keylist['f'] = 4; // 方法名
+    $keylist['status'] = 6; // 状态
+    $keylist['type'] = 7; // 类型
+
+    // 不限制上传文件的大小和时间
+    set_time_limit(0);
+    init_set('memory_limit', '-1');
+
+    // 读取上传文件的内容
+    if (file_exists($file_path)) {
+      $file = fopen($file_path, 'r');
+      if ($file === false) {
+        return show(-1, '无法打开文件');
+      }
+      while (!feof($file)) { // 如果还有数据，则继续循环读取
+        $line = trim(fgets($file)); // 读取一行数据
+        $insertData = array(); // 添加要插入的数组
+        if (strlen($line) > 0) {
+          $tmpArr = explode(',', $line); // 将一行数据以逗号分割为数组
+          if (!empty($tmpArr)) {
+            foreach ($keylist as $k => $v) {
+              // if($k == 'weixinmp' && !empty($dataArr[$v])) {
+              //   $insertlist['guide_type'] = '公众号';
+              //   $insertlist['guide_username'] = $dataArr[$v];
+              // }else if($k == 'weixin' && !empty($dataArr[$v])){
+              //     $insertlist['guide_type'] = '微信号';
+              //     $insertlist['guide_username'] = $dataArr[$v];
+              // }
+              if (!empty($tmpArr[$v])) {
+                $insertData[$k] = $tmpArr[$v];
+              } else {
+                $insertData[$k] = '';
+              }
+            }
+          }
+          // if(isset($insertlist['weixin'])) {
+          //   unset($insertlist['weixin']);
+          // }
+          // if(isset($insertlist['weixinmp'])) {
+          //     unset($insertlist['weixinmp']);
+          // }
+          $res = $this->menu->modify($insertData);
+        }
+      }
+      fclose($file);
+      return show(0, '导入成功', $res);
+    } else {
+      return show(-1, '上传文件不存在');
     }
   }
 

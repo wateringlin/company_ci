@@ -1,7 +1,8 @@
 <?php
-  $this->load->model('Menu_model', 'menu');
-  $navs = $this->menu->getAdminMenus();
-  $controller_name = $this->router->fetch_class();
+  $CI = &get_instance();
+  $CI->load->model('Menu_model', 'menu');
+  $navs = $CI->menu->getAdminMenus();
+  $controller_name = $CI->router->fetch_class();
 ?>
 
 <!-- Navigation -->

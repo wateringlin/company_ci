@@ -184,4 +184,3 @@ function parseRouteParams() {
     }
     return searchObj;
 }
-

@@ -29,7 +29,7 @@
     pagination: function() {
       var _this = this;
       $('#pagination').jqPaginator({
-        totalCounts: parseInt(this.data.pagination.total),
+        totalCounts: this.data.pagination.total ? parseInt(this.data.pagination.total) : 1, // totalCounts不能为0，不然保错
         pageSize: parseInt(this.data.pagination.pageSize),
         onPageChange: function (page) {
           // 如果初始化时分页条已经加载，则禁止再调用getList方法，防止重复调用
@@ -212,18 +212,19 @@
         data: data,
         dataType: 'JSON',
         success: function(res) {
-          if (res.retcode === 0 && res.data.data) {
+          console.log('res:111 ', res);
+          if (res.retcode === 0) {
             // 成功
             _this.data.menuList = res.data.data;
             _this.data.pagination.total = res.data.total;
 
-            if (_this.data.menuList.length) {
+            // if (_this.data.menuList.length) {
               _this.renderMenuList(_this.data.menuList);
 
               if (typeof callback === 'function') {
                 callback && callback();
               }
-            }
+            // }
           } else {
             // 失败
             return dialog.error(res.msg);
@@ -232,8 +233,72 @@
       })
     },
 
-    // 初始化，获取路由参数，获取数据列表
-    init: function() {
+    // 绑定事件
+    bindEvents: function() {
+      var _this = this;
+      // 跳转至添加页面
+      $('#add').click(function() {
+        _this.jumpAddUrl();
+      });
+
+      // 跳转至编辑页面，该结构由js动态生成，使用delegate事件代理
+      $('body').delegate('#edit', 'click', function() {
+        var id = $(this).attr('attr-id');
+        _this.jumpEditUrl(id);
+      });
+
+      // 删除数据，该结构由js动态生成，使用delegate事件代理
+      $('body').delegate('#delete', 'click', function() {
+        var id = $(this).attr('attr-id');
+        _this.delete(id);
+      });
+
+      // 提交编辑数据按钮
+      $('#btn_edit_submit').click(function() {
+        _this.modify();
+      });
+
+      // 提交增加数据按钮
+      $('#btn_add_submit').click(function() {
+        _this.modify();
+      });
+
+      // 提交排序数据按钮
+      $('#btn_sort_submit').click(function() {
+        _this.sort();
+      });
+
+      // 查询按钮
+      $('#btn_search_submit').click(function() {
+        // 获取查询条件
+        var selectVal = $('select[name="type"]').val();
+
+        // 设置查询条件
+        _this.data.search.type.value = selectVal;
+        _this.data.pagination.page = 1; 
+
+        // 根据查询条件获取数据
+        _this.getList(function() {
+          _this.data.isPaginationLoaded = true;
+          _this.pagination();
+        });
+      });
+
+      // 导入模板
+      $('#import').click(function() {
+        console.log('import');
+        
+      });
+      
+      // 导出模板
+      $('#export').click(function() {
+        console.log('export');
+
+      });
+    },
+
+    // 获取数据列表
+    initData: function() {
       var _this = this;
       // 获取数据列表
       this.getList(function() {
@@ -242,61 +307,15 @@
         // 加载完数据后，显示分页条
         _this.pagination();
       });
-      
+    },
+
+    // 初始化
+    init: function() {
+      this.bindEvents();
+      this.initData();
     }
   }
-  
-  // 跳转至添加页面
-  $('#button-add').click(function() {
-    menu.jumpAddUrl();
-  });
 
-  // 跳转至编辑页面，该结构由js动态生成，使用delegate事件代理
-  $('body').delegate('#edit', 'click', function() {
-    var id = $(this).attr('attr-id');
-    menu.jumpEditUrl(id);
-  });
-
-  // 删除数据，该结构由js动态生成，使用delegate事件代理
-  $('body').delegate('#delete', 'click', function() {
-    var id = $(this).attr('attr-id');
-    menu.delete(id);
-  });
-
-  // 提交编辑数据按钮
-  $('#btn_edit_submit').click(function() {
-    menu.modify();
-  });
-
-  // 提交增加数据按钮
-  $('#btn_add_submit').click(function() {
-    menu.modify();
-  });
-
-  // 提交排序数据按钮
-  $('#btn_sort_submit').click(function() {
-    menu.sort();
-  });
-
-  // 查询按钮
-  $('#btn_search_submit').click(function() {
-    // 获取查询条件
-    var selectVal = $('select[name="type"]').val();
-
-    // 设置查询条件
-    menu.data.search.type.value = selectVal;
-    menu.data.pagination.page = 1; 
-
-    // 根据查询条件获取数据
-    menu.getList(function() {
-      menu.data.isPaginationLoaded = true;
-      menu.pagination();
-    });
-  });
-
-  // 初始化页面
-  $(function() {
-    menu.init();
-  })
+  menu.init();
   
 })();
