@@ -1,9 +1,10 @@
-<?php
+<?php 
+defined('BASEPATH') OR exit('No direct script access allowed');
 /**
  * 上传类
  */
 
-class upload {
+class FileUpload {
     protected $file_name;
     protected $max_size;
     protected $allow_mime;
@@ -13,14 +14,15 @@ class upload {
     protected $file_info;
     protected $error;
     protected $ext;
+    protected $file_folder;
 
     // 初始化
-    public function __construct($file_name='myFile', $upload_path='./uploads', $img_flag=true, $max_size=5242880, $allow_ext=array('jpeg', 'jpg', 'png', 'gif'), $allow_mime=array('image/jpeg', 'image/png', 'image/gif')) {
+    public function __construct($file_name='file', $upload_path='./uploads', $img_flag=true, $max_size=5242880, $allow_ext=array('jpeg', 'jpg', 'png', 'gif', 'csv'), $allow_mime=array('image/jpeg', 'image/png', 'image/gif')) {
         $this->file_name = $file_name;
         $this->max_size = $max_size;
         $this->allow_mime = $allow_mime;
         $this->allow_ext = $allow_ext;
-        $this->upload_path = $upload_path;
+        $this->upload_path = SYSTEM_UPLOAD_DIR.$upload_path;
         $this->img_flag = $img_flag;
         $this->file_info = $_FILES[$this->file_name];
     }
@@ -87,10 +89,11 @@ class upload {
         * 检测文件的类型
         */
         protected function checkMime() {
-            if (!in_array($this->file_info['type'], $this->allow_mime)) {
-                $this->error = '不允许的文件类型';
-                return false;
-            }
+            // var_dump('$this->file_info: ', $this->file_info);
+            // if (!in_array($this->file_info['type'], $this->allow_mime)) {
+            //     $this->error = '不允许的文件类型';
+            //     return false;
+            // }
             return true;
         }
 
@@ -128,23 +131,25 @@ class upload {
         * 检测目录不存在则创建
         */
         protected function checkUploadPath() {
-            if (!file_exists($this->upload_path)) {
-                mkdir($this->upload_path, 0777, true);
+            $this->file_folder .= $this->upload_path.'/'.date('Ymd').'/';
+            if (!file_exists($this->file_folder)) {
+                mkdir($this->file_folder, 0777, true);
             }
         }
 
-        // 产生唯一字符串
-        protected function getUniName() {
-            return md5(uniqid(microtime(true), true));
+        // 年月日/年月日时分秒_随机数.后缀
+        protected function getFileName() {
+            // return md5(uniqid(microtime(true), true));
+            return date('YmdHis').'_'.rand(10000, 99999).'.'.$this->ext;
         }
 
     public function uploadFile() {
         if ($this->checkError() && $this->checkSize() && $this->checkExt() && $this->checkMime() && $this->checkTrueImg() && $this->checkHttpPost()) {
             $this->checkUploadPath();
-            $this->uniName = $this->getUniName();
-            $this->destination = $this->upload_path.'/'.$this->uniName.'.'.$this->ext;
-            if (@move_uploaded_file($this->file_info['tmp_name'], $this->destination)) {
-                return $this->destination;
+            $this->new_file_name = $this->getFileName();
+            $this->file_folder .= $this->new_file_name;
+            if (@move_uploaded_file($this->file_info['tmp_name'], $this->file_folder)) {
+                return $this->file_folder;
             } else {
                 $this->error = '文件移动失败';
                 $this->showError();

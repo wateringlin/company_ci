@@ -166,15 +166,23 @@ class Menu extends MY_Controller {
     }
   }
 
+  public function uploadFile() {
+    header('content-type:text/html;charset=utf-8');
+    $this->load->library('FileUpload');
+    $return_url = $this->fileupload->uploadFile();
+    echo $return_url;
+  }
+
   /**
    * 读取csv文件，导入数据
    */
-  public function uploadFile() {
+  public function importData() {
     // 获取上传的文件
     if (!$_FILES['file']) {
       return;
     }
     $file = $_FILES['file'];
+    var_dump('$file: ', $file);
 
     // 可以先在服务器写死一个文件路径测试
     // $file_path = '/data/www/van/data/juanzong.csv';
@@ -183,11 +191,11 @@ class Menu extends MY_Controller {
     // 定义获取文件的每列标题，只用于循环，不赋值
     $keylist = array();
     $keylist['name'] = 0; // 名称
-    $keylist['m'] = 2; // 模块名
-    $keylist['c'] = 3; // 控制器名
-    $keylist['f'] = 4; // 方法名
-    $keylist['status'] = 6; // 状态
-    $keylist['type'] = 7; // 类型
+    $keylist['m'] = 1; // 模块名
+    $keylist['c'] = 2; // 控制器名
+    $keylist['f'] = 3; // 方法名
+    $keylist['status'] = 4; // 状态
+    $keylist['type'] = 5; // 类型
 
     // 不限制上传文件的大小和时间
     set_time_limit(0);

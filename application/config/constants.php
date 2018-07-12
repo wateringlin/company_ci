@@ -90,9 +90,9 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 defined('MD5_PREFIX') || define('MD5_PREFIX', 'pc');
 
 defined('SYSTEM_SESSION_DIR') || define('SYSTEM_SESSION_DIR', '/data/appdata/company_ci/session/');
-defined('SYSTEM_UPLOAD_DIR') || define('SYSTEM_PUBLIC_DIR', '/data/appdata/company_ci/uploads/');
+defined('SYSTEM_UPLOAD_DIR') || define('SYSTEM_UPLOAD_DIR', '/data/appdata/company_ci/');
 defined('SYSTEM_LOGS_DIR') || define('SYSTEM_LOGS_DIR', '/data/appdata/company_ci/logs/');
-defined('SYSTEM_CACHE_DIR') || defined('SYSTEM_CACHE_DIR', '/data/appdata/company_ci/cache/');
+defined('SYSTEM_CACHE_DIR') || define('SYSTEM_CACHE_DIR', '/data/appdata/company_ci/cache/');
 
 defined('OUTSIDE_DOMAIN') || define('OUTSIDE_DOMAIN', ''); //外网域名
 defined('INSIDE_DOMAIN') || define('INSIDE_DOMAIN', 'pc.niaiyouhui.com'); //内网域名
