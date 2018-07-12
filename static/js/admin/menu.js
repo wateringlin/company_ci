@@ -23,7 +23,11 @@
         pageSize: 10
       },
 
-      menuList: []
+      menuList: [],
+
+      // 上传模板文件相关
+      uploadSwfUrl: G_BASE_URL + 'static/js/party/uploadify.swf',
+      uploadFileUrl: G_BASE_URL + 'admin/menu/uploadFile',
     },
 
     pagination: function() {
@@ -61,6 +65,25 @@
       };
       var html = template(tpl, data);
       document.getElementById('menu-list').innerHTML = html;
+    },
+
+    export(_this) {
+      _this.uploadify({
+        swf: this.data.uploadSwfUrl,
+        uploader: this.data.uploadFileUrl,
+        buttonText: '导入模板',
+        fileTypeDesc: 'csv',
+        fileObjName: 'file',
+        fileTypeExts: '*.csv',
+        opUploadSuccess: function(file, data, response) {
+          if (response) {
+            var obj = JSON.parse(data);
+            $('#' + file.id).find('.data').html(' 上传完毕');
+          } else {
+            alert('上传失败');
+          }
+        }
+      });
     },
 
     // 排序数据
@@ -287,13 +310,13 @@
       // 导入模板
       $('#import').click(function() {
         console.log('import');
-        
+        _this.export($(this));
       });
       
       // 导出模板
       $('#export').click(function() {
         console.log('export');
-
+        
       });
     },
 

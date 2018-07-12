@@ -169,7 +169,7 @@ class Menu extends MY_Controller {
   /**
    * 读取csv文件，导入数据
    */
-  public function import() {
+  public function uploadFile() {
     // 获取上传的文件
     if (!$_FILES['file']) {
       return;
@@ -177,7 +177,8 @@ class Menu extends MY_Controller {
     $file = $_FILES['file'];
 
     // 可以先在服务器写死一个文件路径测试
-    $file_path = '/data/www/van/data/juanzong.csv';
+    // $file_path = '/data/www/van/data/juanzong.csv';
+    $file_path = $file['tmp_name'];
 
     // 定义获取文件的每列标题，只用于循环，不赋值
     $keylist = array();
@@ -198,20 +199,17 @@ class Menu extends MY_Controller {
       if ($file === false) {
         return show(-1, '无法打开文件');
       }
-      while (!feof($file)) { // 如果还有数据，则继续循环读取
-        $line = trim(fgets($file)); // 读取一行数据
-        $insertData = array(); // 添加要插入的数组
+      // 如果还有数据，则继续循环读取
+      while (!feof($file)) { 
+        // 读取一行数据
+        $line = trim(fgets($file)); 
+        // 添加要插入的数组
+        $insertData = array(); 
         if (strlen($line) > 0) {
-          $tmpArr = explode(',', $line); // 将一行数据以逗号分割为数组
+          // 将一行数据以逗号分割为数组
+          $tmpArr = explode(',', $line);
           if (!empty($tmpArr)) {
             foreach ($keylist as $k => $v) {
-              // if($k == 'weixinmp' && !empty($dataArr[$v])) {
-              //   $insertlist['guide_type'] = '公众号';
-              //   $insertlist['guide_username'] = $dataArr[$v];
-              // }else if($k == 'weixin' && !empty($dataArr[$v])){
-              //     $insertlist['guide_type'] = '微信号';
-              //     $insertlist['guide_username'] = $dataArr[$v];
-              // }
               if (!empty($tmpArr[$v])) {
                 $insertData[$k] = $tmpArr[$v];
               } else {
@@ -219,12 +217,6 @@ class Menu extends MY_Controller {
               }
             }
           }
-          // if(isset($insertlist['weixin'])) {
-          //   unset($insertlist['weixin']);
-          // }
-          // if(isset($insertlist['weixinmp'])) {
-          //     unset($insertlist['weixinmp']);
-          // }
           $res = $this->menu->modify($insertData);
         }
       }

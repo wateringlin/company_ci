@@ -87,6 +87,17 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 /**
  * 自定义常量
  */
-defined('MD5_PREFIX') OR define('MD5_PREFIX', 'pc');
-defined('SYSTEM_SESSION_DIR') OR define('SYSTEM_SESSION_DIR', '/data/appdata/company_ci/session');
-defined('UPLOADED_DATA') OR define('UPLOADED_DATA', '/data/appdata/company_ci/upload/images/');
+defined('MD5_PREFIX') || define('MD5_PREFIX', 'pc');
+
+defined('SYSTEM_SESSION_DIR') || define('SYSTEM_SESSION_DIR', '/data/appdata/company_ci/session/');
+defined('SYSTEM_UPLOAD_DIR') || define('SYSTEM_PUBLIC_DIR', '/data/appdata/company_ci/uploads/');
+defined('SYSTEM_LOGS_DIR') || define('SYSTEM_LOGS_DIR', '/data/appdata/company_ci/logs/');
+defined('SYSTEM_CACHE_DIR') || defined('SYSTEM_CACHE_DIR', '/data/appdata/company_ci/cache/');
+
+defined('OUTSIDE_DOMAIN') || define('OUTSIDE_DOMAIN', ''); //外网域名
+defined('INSIDE_DOMAIN') || define('INSIDE_DOMAIN', 'pc.niaiyouhui.com'); //内网域名
+defined('DOMAIN_PREFIX') || define('DOMAIN_PREFIX', 'http://'); //域名前缀
+
+//定义oa统一登录所需的授权信息，用于验证oa登录接口
+defined("_OA_SYSTEMID_") || define("_OA_SYSTEMID_", "22249");
+defined("_OA_APPKEY_") || define("_OA_APPKEY_", "c25c015518814b69810a35169707b431");
