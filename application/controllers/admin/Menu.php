@@ -166,55 +166,60 @@ class Menu extends MY_Controller {
     }
   }
 
+  /**
+   * 保存上传的文件
+   */
   public function uploadFile() {
-    header('content-type:text/html;charset=utf-8');
-    $this->load->library('FileUpload');
-    $return_url = $this->fileupload->uploadFile();
-    echo $return_url;
+    $params = array(
+      'file_name' => 'file',
+      'upload_path' => 'csv'
+    );
+    $this->load->library('FileUpload', $params);
+    $file_path = $this->fileupload->uploadFile();
+    return $file_path;
   }
 
   /**
    * 读取csv文件，导入数据
    */
   public function importData() {
-    // 获取上传的文件
-    if (!$_FILES['file']) {
-      return;
-    }
-    $file = $_FILES['file'];
-    var_dump('$file: ', $file);
-
-    // 可以先在服务器写死一个文件路径测试
-    // $file_path = '/data/www/van/data/juanzong.csv';
-    $file_path = $file['tmp_name'];
+    // 获取上传的文件路径
+    $file_path = $this->uploadFile();
 
     // 定义获取文件的每列标题，只用于循环，不赋值
     $keylist = array();
-    $keylist['name'] = 0; // 名称
-    $keylist['m'] = 1; // 模块名
-    $keylist['c'] = 2; // 控制器名
-    $keylist['f'] = 3; // 方法名
-    $keylist['status'] = 4; // 状态
-    $keylist['type'] = 5; // 类型
+    $keylist['name'] = 0; // 菜单名
+    $keylist['type'] = 1; // 菜单类型
+    $keylist['m'] = 2; // 模块名
+    $keylist['c'] = 3; // 控制器
+    $keylist['f'] = 4; // 方法
+    $keylist['status'] = 5; // 状态
 
     // 不限制上传文件的大小和时间
     set_time_limit(0);
-    init_set('memory_limit', '-1');
+    // init_set('memory_limit', '-1');
 
     // 读取上传文件的内容
     if (file_exists($file_path)) {
       $file = fopen($file_path, 'r');
+      $line_number = 0;
       if ($file === false) {
         return show(-1, '无法打开文件');
       }
       // 如果还有数据，则继续循环读取
-      while (!feof($file)) { 
+      while (!feof($file)) {
         // 读取一行数据
         $line = trim(fgets($file)); 
+        // 跳过表头
+        if ($line_number == 0) {
+          $line_number += 1;
+          continue;
+        }
+        // var_dump('$line: ', $line);
         // 添加要插入的数组
         $insertData = array(); 
         if (strlen($line) > 0) {
-          // 将一行数据以逗号分割为数组
+          // 每行数据以逗号分割为数组
           $tmpArr = explode(',', $line);
           if (!empty($tmpArr)) {
             foreach ($keylist as $k => $v) {

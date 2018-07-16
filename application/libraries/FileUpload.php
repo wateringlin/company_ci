@@ -2,28 +2,33 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 /**
  * 上传类
+ * 
+ * 基本用法：
+ * $this->load->library('FileUpload');
+ * $file_path = $this->fileupload->uploadFile();
  */
 
 class FileUpload {
-    protected $file_name;
-    protected $max_size;
-    protected $allow_mime;
-    protected $allow_ext;
-    protected $upload_path;
-    protected $img_flag;
-    protected $file_info;
-    protected $error;
-    protected $ext;
-    protected $file_folder;
+
+    protected $file_name; // 上传文件的name属性值
+    protected $max_size; // 上传文件最大数
+    protected $allow_mime; //允许的文件类型
+    protected $allow_ext; // 允许的文件扩展名
+    protected $upload_path; // 上传文件保存路径
+    protected $img_flag; // 是否为真实图片的标志
+    protected $file_info; // 上传文件信息
+    protected $error; // 错误信息
+    protected $ext; // 文件扩展名
+    protected $file_folder; // 上传文件最终存储路径
 
     // 初始化
-    public function __construct($file_name='file', $upload_path='./uploads', $img_flag=true, $max_size=5242880, $allow_ext=array('jpeg', 'jpg', 'png', 'gif', 'csv'), $allow_mime=array('image/jpeg', 'image/png', 'image/gif')) {
-        $this->file_name = $file_name;
-        $this->max_size = $max_size;
-        $this->allow_mime = $allow_mime;
-        $this->allow_ext = $allow_ext;
-        $this->upload_path = SYSTEM_UPLOAD_DIR.$upload_path;
-        $this->img_flag = $img_flag;
+    public function __construct(Array $params = array()) {
+        $this->file_name = isset($params['file_name']) ? $params['file_name'] : 'file';
+        $this->upload_path = isset($params['upload_path']) ? SYSTEM_UPLOAD_DIR.$params['upload_path'] : SYSTEM_UPLOAD_DIR.'images';
+        $this->max_size = isset($params['max_size']) ? $params['max_size'] : 5242880;
+        $this->allow_ext = isset($params['allow_ext']) ? $params['allow_ext'] : array('jpeg', 'jpg', 'png', 'gif', 'csv', 'mp3', 'mp4');
+        $this->allow_mime = isset($params['allow_mime']) ? $params['allow_mime'] : array('image/jpeg', 'image/png', 'image/gif');
+        $this->img_flag = isset($params['img_flag']) ? $params['img_flag'] : true;
         $this->file_info = $_FILES[$this->file_name];
     }
 
@@ -152,10 +157,10 @@ class FileUpload {
                 return $this->file_folder;
             } else {
                 $this->error = '文件移动失败';
-                $this->showError();
+                return show(-1, $this->error);
             }
         } else {
-            $this->showError();
+            return show(-1, $this->error);
         }
     }
 }

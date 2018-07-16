@@ -25,9 +25,10 @@
 
       menuList: [],
 
-      // 上传模板文件相关
+      // 上传下载模板文件相关
       uploadSwfUrl: G_BASE_URL + 'static/js/party/uploadify.swf',
-      uploadFileUrl: G_BASE_URL + 'admin/menu/uploadFile',
+      uploadFileUrl: G_BASE_URL + 'admin/menu/importData',
+      downloadFileUrl: G_BASE_URL + 'res/menu_template.csv'
     },
 
     pagination: function() {
@@ -58,7 +59,7 @@
     },
 
     // 渲染菜单列表
-    renderMenuList: function(menuList) {
+    renderMenuList: function() {
       var tpl = document.getElementById('menu_list_tpl').innerHTML;
       var data = {
         menuList: this.data.menuList
@@ -208,7 +209,7 @@
           data.search[i] = item;
         }
       }
-      console.log('data: ', data);
+      // console.log('data: ', data);
 
       $.ajax({
         type: 'GET',
@@ -216,19 +217,17 @@
         data: data,
         dataType: 'JSON',
         success: function(res) {
-          console.log('res:111 ', res);
+          // console.log('res: ', res)  ;
           if (res.retcode === 0) {
             // 成功
             _this.data.menuList = res.data.data;
             _this.data.pagination.total = res.data.total;
 
-            // if (_this.data.menuList.length) {
-              _this.renderMenuList(_this.data.menuList);
+            _this.renderMenuList();
 
-              if (typeof callback === 'function') {
-                callback && callback();
-              }
-            // }
+            if (typeof callback === 'function') {
+              callback && callback();
+            }
           } else {
             // 失败
             return dialog.error(res.msg);
@@ -297,6 +296,9 @@
         fileObjName: 'file',
         fileTypeExts: '*.csv',
         opUploadSuccess: function(file, data, response) {
+          console.log('file: ', file);
+          console.log('data: ', data);
+          console.log('response: ', response);
           if (response) {
             var obj = JSON.parse(data);
             $('#' + file.id).find('.data').html(' 上传完毕');
@@ -308,8 +310,7 @@
       
       // 导出模板
       $('#export').click(function() {
-        console.log('export');
-        _this.export($(this));
+        // location.href = this.downloadFileUrl;
       });
     },
 

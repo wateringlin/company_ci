@@ -26,12 +26,12 @@
       // 增加
       $res = $this->db->insert($this->table, $data);
     }
-
+    // var_dump($this->db->last_query());
     return $res ? $this->db->affected_rows() : $res;
   }
 
   /**
-   * 根据id获取数据
+   * 根据id获取菜单数据
    */
   public function getMenuById($id = '') {
     if (!$id) {
@@ -58,6 +58,9 @@
     return $res ? $this->db->affected_rows() : $res;
   }
 
+  /**
+   * 获取后端菜单数据
+   */
   public function getAdminMenus() {
     $data = array(
       'status' => 1,

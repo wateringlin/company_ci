@@ -1,0 +1,3 @@
+菜单名,菜单类型,模块名,控制器,方法,状态
+菜单管理,1,admin,menu,index,1
+文章管理,1,home,article,index,1

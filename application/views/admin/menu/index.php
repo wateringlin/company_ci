@@ -47,9 +47,8 @@
         </div>
         <div>
           <button  id="add" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加 </button>
-          <button id="export" type="button" class="btn btn-primary ">导出模版</button>
+          <a class="btn btn-primary " href="<?php echo base_url();?>res/menu_template.csv">导出模版</a>
           <button id="import" type="button" class="btn btn-primary">导入模版</button>
-          
         </div>
         <div class="row">
             <div class="col-lg-6">

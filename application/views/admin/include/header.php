@@ -32,6 +32,7 @@
     <script src="<?php echo base_url();?>static/js/party/jquery.uploadify.js"></script>
     <script src="<?php echo base_url();?>static/js/party/template.js"></script>
     <script src="<?php echo base_url();?>static/js/party/jqpaginator.min.js"></script>
+    <script src="<?php echo base_url();?>static/js/kindeditor/kindeditor-all.js"></script>
 
   <script>
     var G_BASE_URL = "<?php echo base_url();?>";
