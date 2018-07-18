@@ -70,6 +70,9 @@ function transferUploadPath($file_path) {
   return $upload_path;
 }
 
+/**
+ * 前端kindeditor富文本编辑器数据返回格式
+ */
 function showEditor($status, $data) {
   header('Content-type: application/json; charset=UTF-8');
   if ($status == 0) {
@@ -77,3 +80,4 @@ function showEditor($status, $data) {
   }
   exit(json_encode(array('error' => 1, 'message' => '上传失败')));
 }
+

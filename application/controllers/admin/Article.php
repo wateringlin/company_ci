@@ -24,6 +24,58 @@ class Article extends MY_Controller {
   }
 
   /**
+   * 显示编辑页面，并获取数据填充编辑页面
+   */
+  public function edit() {
+    // 编辑页面不方便使用js渲染，使用PHP替代
+    $id = $this->input->get('id', true);
+    $res = $this->article->getArticleById($id);
+    $data = array();
+    if ($res) {
+      $data['article'] = $res[0];
+    }
+
+    $this->load->view('admin/article/edit', $data);
+  }
+
+  /**
+   * 获取分页数据
+   */
+  public function getList() {
+    $where = array();
+    if ($this->input->get_post('search', true)) {
+      $where = $this->input->get_post('search', true);
+    }
+    $page = $this->input->get_post('page', true);
+    $pageSize = $this->input->get_post('pageSize', true);
+
+    // 设置获取数据状态为未删除，排序为降序
+    $where['status'] = array('value' => '-1', 'operator' => '!=');
+    $where['orderby'] = array('value' => 'listorder desc, news_id desc', 'operator' => 'orderby');
+
+    $res = $this->article->paginate($where, $page, $pageSize);
+    $data = array();
+    if ($res['data'] !== false) {
+      // 处理需要转化为中文的数据，这里使用引用的方式，下面改了$item就会改变$res['data']的数据了
+      foreach ($res['data'] as &$item) {
+        if (is_array($item)) {
+          foreach ($item as $k => $v) {
+            if ($k === 'status') {
+              $item[$k] = getStatus($v);
+            }
+          }
+        }
+      }
+      $data['data'] = $res['data'];
+      $data['total'] = $res['total'];
+      $data['hasMore'] = $res['hasMore'];
+      return show(0, '获取数据成功', $data);
+    } else {
+      return show(-1, '获取数据失败', $data);
+    }
+  }
+
+  /**
    * 上传图片，返回客户端可访问的图片地址
    */
   public function getUploadedImage() {
@@ -68,6 +120,59 @@ class Article extends MY_Controller {
     }
     return show(-1, '获取失败', $res);
   }
+
+  /**
+   * 增加或修改数据
+   */
+  public function modify() {
+    $id = $this->input->post('id', true);
+    $data = $this->input->post('fields', true);
+    // 校验数据
+    if (!isset($data['title']) || empty($data['title'])) {
+      return show(-1, '标题不存在');
+    }
+    if (!isset($data['content']) || empty($data['content'])) {
+      return show(-1, '文章内容不存在');
+    }
+
+    // 添加文章内容表的数据，删除往主表添加的内容字段
+    $articleContentData['content'] = $data['content'];
+    unset($data['content']);
+
+    if ($id) {
+      // 修改
+      $data['update_time'] = date('Y-m-d H:i:s');
+      $data['update_user'] = $this->user['username'];
+      $article_id = $this->article->modify($data, $id);
+    } else {
+      // 新增
+      $data['create_time'] = date('Y-m-d H:i:s');
+      $data['create_user'] = $this->user['username'];
+      $insert_id = $this->article->modify($data);
+      if ($insert_id) {
+        $articleContentData['news_id'] = $insert_id;
+        if ($id) {
+          // 修改 副表
+          $articleContentData['update_time'] = date('Y-m-d H:i:s');
+          $articleContentData['update_user'] = $this->user['username'];
+          $content_id = $this->article->modifyContentData($articleContentData, $id);
+        } else {
+          // 增加 副表
+          $articleContentData['create_time'] = date('Y-m-d H:i:s');
+          $articleContentData['create_user'] = $this->user['username'];
+          $content_id = $this->article->modifyContentData($articleContentData);
+        }
+        if ($content_id) {
+          return show(0, '新增成功', $content_id);
+        } else {
+          return show(-1, '主表插入成功，副表插入失败', $content_id);
+        }
+      } else {
+        return show(-1, '新增失败', $insert_id);
+      }
+    }
+  }
+
 
 }
 

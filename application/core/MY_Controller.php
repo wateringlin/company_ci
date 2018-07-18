@@ -26,11 +26,11 @@ class MY_Controller extends CI_Controller {
    */
   public function isLogin() {
     $user = $this->getLoginUser();
-    // if ($user && is_array($user)) {
+    if ($user && is_array($user)) {
       return true;
-    // } else {
-    //   return false;
-    // }
+    } else {
+      return false;
+    }
   }
 
   /**

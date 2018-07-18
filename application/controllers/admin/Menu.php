@@ -85,7 +85,7 @@ class Menu extends MY_Controller {
   public function modify() {
     $id = $this->input->post('id', true);
     $data = $this->input->post('fields', true);
-    // 判断数据是否为空
+    // 校验数据
     if (!isset($data['name']) || !$data['name']) {
       return show(-1, '菜单名不能为空');
     } else if (!isset($data['m']) || !$data['m']) {
@@ -109,9 +109,8 @@ class Menu extends MY_Controller {
     }
     if ($res) {
       return show(0, '编辑成功', $res);
-    } else {
-      return show(-1, '编辑失败', $res);
     }
+    return show(-1, '编辑失败', $res);
   }
 
   /**

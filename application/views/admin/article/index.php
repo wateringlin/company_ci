@@ -23,7 +23,7 @@
       </div>
       <!-- /.row -->
       <div >
-        <button  id="add" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加 </button>
+        <button id="add" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加 </button>
       </div>
       <div class="row">
         <form action="/admin.php" method="get">
@@ -70,37 +70,14 @@
                   <th>操作</th>
                 </tr>
                 </thead>
-                <tbody>
-                <volist name="news" id="new">
-                  <tr>
-                    <td><input type="checkbox" name="pushcheck" value="{$new.news_id}"></td>
-                    <td><input size=4 type='text'  name='listorder[{$new.news_id}]' value="{$new.listorder}"/></td><!--6.7-->
-                    <td>{$new.news_id}</td>
-                    <td>{$new.title}</td>
-                    <td>{$new.catid|getCatName=$webSiteMenu,###}</td>
-                    <td>{$new.copyfrom|getCopyFromById}</td>
-                    <td>
-                      {$new.thumb|isThumb}
-                    </td>
-                    <td>{$new.create_time|date="Y-m-d H:i",###}</td>
-                    <td><span  attr-status="<if condition="$new['status'] eq 1">0<else/>1</if>"  attr-id="{$new.news_id}" class="sing_cursor singcms-on-off" id="singcms-on-off" >{$new.status|status}</span></td>
-                    <td><span class="sing_cursor glyphicon glyphicon-edit" aria-hidden="true" id="singcms-edit" attr-id="{$new.news_id}" ></span>
-                      <a href="javascript:void(0)" id="singcms-delete"  attr-id="{$new.news_id}"  attr-message="删除">
-                        <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
-                      </a>
-                      <a target="_blank" href="/index.php?c=detail&a=view&id={$new.news_id}" class="sing_cursor glyphicon glyphicon-eye-open" aria-hidden="true"  ></a>
-
-                    </td>
-                  </tr>
-                </volist>
+                <tbody id="article_list">
+                
 
                 </tbody>
               </table>
               <nav>
 
-              <ul >
-                {$pageres}
-              </ul>
+              <ul class="pagination" id="pagination"></ul>
 
             </nav>
               <div>
@@ -133,5 +110,38 @@
 
 </div>
 <!-- /#wrapper -->
+<script id="article_list_tpl" type="text/html">
+  <%for (var i = 0; i < articleList.length; i++) {%>
+    <tr>
+      <td>
+        <input type="checkbox" name="pushcheck" value="<%=articleList[i].news_id%>">
+      </td>
+      <td>
+        <input size="4" type="text" name='listorder[<%=articleList[i].news_id%>]' value="<%=articleList[i].listorder%>"/>
+      </td><!--6.7-->
+      <td><%=articleList[i].news_id%></td>
+      <td><%=articleList[i].title%></td>
+      <!-- <td>{$new.catid|getCatName=$webSiteMenu,###}</td> -->
+      <td><%=articleList[i].catid%></td>
+      <!-- <td>{$new.copyfrom|getCopyFromById}</td> -->
+      <td><%=articleList[i].copyfrom%></td>
+      <!-- <td>{$new.thumb|isThumb}</td> -->
+      <td><%=articleList[i].thumb%></td>
+      <!-- <td>{$new.create_time|date="Y-m-d H:i",###}</td> -->
+      <td><%=articleList[i].create_time%></td>
+      <!-- <td><span  attr-status="<if condition="$new['status'] eq 1">0<else/>1</if>"  attr-id="{$new.news_id}" class="sing_cursor singcms-on-off" id="singcms-on-off" >{$new.status|status}</span></td> -->
+      <td>
+        <span attr-status="" attr-id="<%=articleList[i].news_id%>" class="sing_cursor singcms-on-off" id="singcms-on-off" ><%=articleList[i].status%></span>
+      </td>
+      <td>
+        <span class="sing_cursor glyphicon glyphicon-edit" aria-hidden="true" id="singcms-edit" attr-id="{$new.news_id}" ></span>
+        <a href="javascript:void(0)" id="singcms-delete"  attr-id="{$new.news_id}"  attr-message="删除">
+          <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
+        </a>
+        <a target="_blank" href="/index.php?c=detail&a=view&id={$new.news_id}" class="sing_cursor glyphicon glyphicon-eye-open" aria-hidden="true"  ></a>
+      </td>
+    </tr>
+  <%}%>
+</script>
 <script src="<?php echo base_url();?>static/js/admin/article.js"></script>
 <?php include VIEWPATH.'admin/include/footer.php'?>

@@ -7,7 +7,7 @@
       listUrl: G_BASE_URL + 'admin/menu',
       addUrl: G_BASE_URL + 'admin/menu/add',
       editUrl: G_BASE_URL + 'admin/menu/edit',
-      // 获取数据地址
+      // 获取或修改数据地址
       getListUrl: G_BASE_URL + 'admin/menu/getList',
       modifyUrl: G_BASE_URL + 'admin/menu/modify',
       deleteUrl: G_BASE_URL + 'admin/menu/delete',
@@ -60,12 +60,15 @@
 
     // 渲染菜单列表
     renderMenuList: function() {
-      var tpl = document.getElementById('menu_list_tpl').innerHTML;
-      var data = {
-        menuList: this.data.menuList
-      };
-      var html = template(tpl, data);
-      document.getElementById('menu-list').innerHTML = html;
+      var menu_list_tpl = document.getElementById('menu_list_tpl');
+      if (menu_list_tpl) {
+        var tpl = menu_list_tpl.innerHTML;
+        var data = {
+          menuList: this.data.menuList
+        };
+        var html = template(tpl, data);
+        document.getElementById('menu-list').innerHTML = html;
+      }
     },
 
     // 排序数据
@@ -222,7 +225,6 @@
             // 成功
             _this.data.menuList = res.data.data;
             _this.data.pagination.total = res.data.total;
-
             _this.renderMenuList();
 
             if (typeof callback === 'function') {
@@ -296,9 +298,6 @@
         fileObjName: 'file',
         fileTypeExts: '*.csv',
         opUploadSuccess: function(file, data, response) {
-          console.log('file: ', file);
-          console.log('data: ', data);
-          console.log('response: ', response);
           if (response) {
             var obj = JSON.parse(data);
             $('#' + file.id).find('.data').html(' 上传完毕');

@@ -66,6 +66,12 @@ CREATE TABLE `cms_news` (
   KEY `catid` (`catid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
+alter table cms_news add create_user varchar(50) not null default '' comment '创建人';
+alter table cms_news add update_user varchar(50) not null default '' comment '修改人';
+alter table cms_news modify status tinyint(2) not null default '0' comment '状态';
+alter table cms_news change create_time create_time varchar(50) not null default '' comment '创建时间';
+alter table cms_news change update_time update_time varchar(50) not null default '' comment '修改时间';
+
 
 // 新闻文章内容副表
 CREATE TABLE `cms_news_content` (
@@ -78,6 +84,11 @@ CREATE TABLE `cms_news_content` (
   KEY `news_id` (`news_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
+alter table cms_news_content add create_user varchar(50) not null default '' comment '创建人';
+alter table cms_news_content add update_user varchar(50) not null default '' comment '修改人';
+alter table cms_news_content change create_time create_time varchar(50) not null default '' comment '创建时间';
+alter table cms_news_content change update_time update_time varchar(50) not null default '' comment '修改时间';
+
 
 // 推荐位标识表
 CREATE TABLE `cms_position` (
@@ -89,6 +100,12 @@ CREATE TABLE `cms_position` (
   `update_time` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+alter table cms_position add create_user varchar(50) not null default '' comment '创建人';
+alter table cms_position add update_user varchar(50) not null default '' comment '修改人';
+alter table cms_position modify status tinyint(2) not null default '0' comment '状态';
+alter table cms_position change create_time create_time varchar(50) not null default '' comment '创建时间';
+alter table cms_position change update_time update_time varchar(50) not null default '' comment '修改时间';
 
 
 // 推荐位内容表
@@ -107,4 +124,8 @@ CREATE TABLE `cms_position_content` (
   key `position_id` (`position_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-
+alter table cms_position_content add create_user varchar(50) not null default '' comment '创建人';
+alter table cms_position_content add update_user varchar(50) not null default '' comment '修改人';
+alter table cms_position_content modify status tinyint(2) not null default '0' comment '状态';
+alter table cms_position_content change create_time create_time varchar(50) not null default '' comment '创建时间';
+alter table cms_position_content change update_time update_time varchar(50) not null default '' comment '修改时间';

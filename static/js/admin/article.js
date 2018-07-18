@@ -4,9 +4,14 @@
 
     data: {
       // 页面地址
+      listUrl: G_BASE_URL + 'admin/article',
       addUrl: G_BASE_URL + 'admin/article/add',
-      // 获取数据地址
+      editUrl: G_BASE_URL + 'admin/article/edit',
+      // 获取或修改数据地址
+      getListUrl: G_BASE_URL + 'admin/article/getList',
       homeMenuUrl: G_BASE_URL + 'admin/article/getHomeMenus',
+      modifyUrl: G_BASE_URL + 'admin/article/modify',
+      deleteUrl: G_BASE_URL + 'admin/article/delete',
 
       // 上传图片相关
       uploadSwfUrl: G_BASE_URL + 'static/js/party/uploadify.swf',
@@ -30,6 +35,16 @@
       ],
       homeNavs: [], // 前端栏目
 
+      articleList: [], // 文章列表
+      inPaginationLoaded: false,
+      pagination: {
+        total: '',
+        page: 1,
+        pageSize: 10
+      },
+
+      isAddPage: false
+
     },
 
     // 跳转至新增页面
@@ -37,31 +52,90 @@
       location.href = this.data.addUrl;
     },
 
-    renderHomeNavs: function() {
-      var tpl = document.getElementById('home_navs_tpl').innerHTML;
-      var data = {
-        homeNavs: this.data.homeNavs
-      };
-      var html = template(tpl, data);
-      document.getElementById('home_navs').innerHTML = html;
-    },
-    renderTitleColor: function() {
-      var tpl = document.getElementById('title_color_tpl').innerHTML;
-      var data = {
-        titleColor: this.data.titleColor
-      };
-      var html = template(tpl, data);
-      document.getElementById('title_color').innerHTML = html;
-    },
-    renderOrigin: function() {
-      var tpl = document.getElementById('origin_tpl').innerHTML;
-      var data = {
-        origin: this.data.origin
-      };
-      var html = template(tpl, data);
-      document.getElementById('origin').innerHTML = html;
+    // 分页条
+    pagination: function() {
+      var _this = this;
+      $('#pagination').jqPaginator({
+        totalCounts: this.data.pagination.total ? parseInt(this.data.pagination.total) : 1, // totalCounts不能为0，不然保错
+        pageSize: parseInt(this.data.pagination.pageSize),
+        onPageChange: function(page) {
+          // 如果初始化时分页条已经加载，则禁止再调用getList方法，防止重复调用
+          if (!_this.data.inPaginationLoaded) {
+            _this.data.pagination.page = page;
+            _this.getList();
+          }
+          _this.data.inPaginationLoaded = false;
+        }
+      });
     },
 
+    // 渲染文件列表
+    renderArticleList: function() {
+      var article_list_tpl = document.getElementById('article_list_tpl');
+      if (article_list_tpl) {
+        var tpl = article_list_tpl.innerHTML;
+        var data = {
+          articleList: this.data.articleList
+        };
+        var html = template(tpl, data);
+        document.getElementById('article_list').innerHTML = html;
+      }
+    },
+
+    // 渲染前端栏目
+    renderHomeNavs: function() {
+      var home_navs_tpl = document.getElementById('home_navs_tpl');
+      if (home_navs_tpl) {
+        var tpl = home_navs_tpl.innerHTML;
+        var data = {
+          homeNavs: this.data.homeNavs
+        };
+        var html = template(tpl, data);
+        document.getElementById('home_navs').innerHTML = html;
+      }
+    },
+
+    // 渲染标题颜色
+    renderTitleColor: function() {
+      var title_color_tpl = document.getElementById('title_color_tpl');
+      if (title_color_tpl) {
+        var tpl = title_color_tpl.innerHTML;
+        var data = {
+          titleColor: this.data.titleColor
+        };
+        var html = template(tpl, data);
+        document.getElementById('title_color').innerHTML = html;
+      }
+    },
+
+    // 渲染来源
+    renderOrigin: function() {
+      var origin_tpl = document.getElementById('origin_tpl');
+      if (origin_tpl) {
+        var tpl = origin_tpl.innerHTML;
+        var data = {
+          origin: this.data.origin
+        };
+        var html = template(tpl, data);
+        document.getElementById('origin').innerHTML = html;
+      }
+    },
+
+    //  根据前端栏目id获取前端栏目名称
+    getHomeNavName(articleItem) {
+      var catid = articleItem.catid;
+      for (var i = 0; i < this.data.homeNavs.length; i++) {
+        var item = this.data.homeNavs[i];
+        if (item.menu_id == catid) {
+          articleItem.catid = item.name; // 匹配到就跳出该循环，继续循环下一个文章item
+          break;
+        }
+      }
+      // 重新渲染页面
+      this.renderArticleList();
+    },
+
+    // 获取前端栏目数据
     getHomeMenu: function() {
       var _this = this;
       $.ajax({
@@ -72,10 +146,129 @@
           if (res.retcode === 0) {
             // 成功
             _this.data.homeNavs = res.data;
+            // 转化数字数据为中文
+            for (var i = 0; i < _this.data.articleList.length; i++) {
+              _this.getHomeNavName(_this.data.articleList[i]);
+            }
+
             _this.renderHomeNavs();
           } else {
             // 失败
             return dialog.error(res.msg);
+          }
+        }
+      })
+    },
+
+    // 转换数据为中文
+    transferData: function() {
+      var origin = this.data.origin;
+      for (var i = 0; i < this.data.articleList.length; i++) {
+        var item = this.data.articleList[i];
+        // 转换来源数据
+        for (var j = 0; j < origin.length; j++) {
+          if (item.copyfrom == origin[j].value) {
+            item.copyfrom = origin[j].label; // 匹配到就跳出该循环，继续循环下一个文章item
+            break;
+          }
+        }
+        if (item.thumb) {
+          item.thumb = '有';
+        } else {
+          item.thumb = '无';
+        }
+      }
+      // 重新渲染页面
+      this.renderArticleList();
+    },
+
+    // 修改或增加或删除文章数据
+    modify:function(type) {
+      var _this = this;
+      var data = {};
+      var form = {};
+      var id = parseRouteParams().id;
+      // 判断表单类型
+      console.log('id: ', id);
+      if (id) {
+        form = $('#form_edit');
+      } else {
+        form = $('#form_add');
+      }
+      var formData = form.serializeArray();
+      console.log('formData: ', formData);
+
+      // 整理获取的表单数据，要发给后端的数据
+      var postData = {};
+      $(formData).each(function() {
+        postData[this.name] = this.value;
+      });
+      data.fields = postData;
+
+      // 判断是修改、增加还是删除操作
+      var url = '';
+      if (id) {
+        data.id = id;
+        url = this.data.modifyUrl;
+        if (type === 'delete') {
+          url = this.data.deleteUrl;
+        }
+      } else {
+        url = this.data.modifyUrl;
+      }
+
+      $.ajax({
+        type: 'post',
+        url: url,
+        data: data,
+        dataType: 'json',
+        success: function(res) {
+          if (res.retcode == 0) {
+            // 成功
+            return dialog.success(res.msg, _this.data.listUrl);
+          } else {
+            // 失败
+            return dialog.error(res.msg);
+          }
+        }
+      })
+    },
+
+    // 获取文章列表数据
+    getList: function(callback) {
+      var _this = this;
+      var data = {
+        search: {},
+        page: this.data.pagination.page,
+        pageSize: this.data.pagination.pageSize
+      }
+      for (var i in this.data.search) {
+        var item = this.data.search[i];
+        if (item.value) {
+          data.search[i] = item;
+        }
+      }
+
+      $.ajax({
+        type: 'GET',
+        url: this.data.getListUrl,
+        data: data,
+        dataType: 'JSON',
+        success: function(res) {
+          if (res.retcode === 0) {
+            // 成功
+            _this.data.articleList = res.data.data;
+            // 获取并转换数字为中文
+            _this.getHomeMenu();
+            _this.transferData();
+
+            console.log('_this.data.articleList: ', _this.data.articleList);
+            _this.data.pagination.total = res.data.total;
+            _this.renderArticleList();
+
+            if (typeof callback === 'function') {
+              callback && callback();
+            }
           }
         }
       })
@@ -114,21 +307,39 @@
           }
         }
       });
+
+      // 提交增加数据按钮
+      $('#btn_add_submit').click(function() {
+        _this.modify();
+      });
+
+      $('#btn_edit_submit').click(function() {
+        _this.modify();
+      });
     },
 
     // 获取数据列表
     initData: function() {
       // 初始化富文本框
       var _this = this;
+
+      // 获取文章列表数据
+      this.getList(function() {
+        // 防止重复调用getList方法
+        _this.data.inPaginationLoaded = true;
+        // 加载完数据后，显示分页条
+        _this.pagination();
+      });
+      
+      // 初始化富文本编辑器
       KindEditor.ready(function(K) {
         window.editor = K.create('#editor', {
           uploadJson: _this.data.editorUrl,
           afterBlur: function() { this.sync(); }
         })
-      })
+      });
 
-      // 获取前端栏目
-      this.getHomeMenu();
+      // 增加页面渲染标题数据和来源
       this.renderTitleColor();
       this.renderOrigin();
     },
