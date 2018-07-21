@@ -49,13 +49,13 @@
 
     // 跳转至新增页面
     jumpAddUrl: function() {
-      window.location.href = this.data.addUrl;
+      location.href = this.data.addUrl;
     },
 
     // 跳转至编辑页面
     jumpEditUrl: function(id) {
       // URL带上id，编辑页面不方便js渲染，用PHP
-      window.location.href = this.data.editUrl + '?id=' + id;
+      location.href = this.data.editUrl + '?id=' + id;
     },
 
     // 渲染菜单列表
@@ -115,7 +115,7 @@
 
       layer.open({
         type: 0,
-        title: '是否提交？',
+        title: '删除',
         btn: ['是', '否'],
         icon: 3,
         closeBtn: 2,

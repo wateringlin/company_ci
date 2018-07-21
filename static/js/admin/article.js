@@ -36,20 +36,25 @@
       homeNavs: [], // 前端栏目
 
       articleList: [], // 文章列表
-      inPaginationLoaded: false,
+      isPaginationLoaded: false,
       pagination: {
         total: '',
         page: 1,
         pageSize: 10
       },
 
-      isAddPage: false
+      isAddPage: false,
+      selectedHomeNav: ''
 
     },
 
     // 跳转至新增页面
     jumpAddUrl: function() {
       location.href = this.data.addUrl;
+    },
+
+    jumpEditUrl: function(id) {
+      location.href = this.data.editUrl + '?id=' + id;
     },
 
     // 分页条
@@ -60,11 +65,11 @@
         pageSize: parseInt(this.data.pagination.pageSize),
         onPageChange: function(page) {
           // 如果初始化时分页条已经加载，则禁止再调用getList方法，防止重复调用
-          if (!_this.data.inPaginationLoaded) {
+          if (!_this.data.isPaginationLoaded) {
             _this.data.pagination.page = page;
             _this.getList();
           }
-          _this.data.inPaginationLoaded = false;
+          _this.data.isPaginationLoaded = false;
         }
       });
     },
@@ -85,6 +90,7 @@
     // 渲染前端栏目
     renderHomeNavs: function() {
       var home_navs_tpl = document.getElementById('home_navs_tpl');
+      var index_home_navs_tpl = document.getElementById('index_home_navs_tpl');
       if (home_navs_tpl) {
         var tpl = home_navs_tpl.innerHTML;
         var data = {
@@ -92,6 +98,20 @@
         };
         var html = template(tpl, data);
         document.getElementById('home_navs').innerHTML = html;
+      }
+      if (index_home_navs_tpl) {
+        var tpl = index_home_navs_tpl.innerHTML;
+        this.data.homeNavs.unshift({
+          name: '全部分类',
+          menu_id: ''
+        });
+        var data = {
+          homeNavs: this.data.homeNavs,
+          selectedHomeNav: this.data.selectedHomeNav
+        };
+        
+        var html = template(tpl, data);
+        document.getElementById('index_home_navs').innerHTML = html;
       }
     },
 
@@ -182,6 +202,69 @@
       this.renderArticleList();
     },
 
+    // 删除数据
+    delete: function(id) {
+      var _this = this;
+      var data = {};
+      data.id = id;
+      data.fields = {
+        status: -1
+      };
+
+      layer.open({
+        type: 0,
+        title: '删除',
+        btn: ['是', '否'],
+        icon: 3,
+        closeBtn: 2,
+        content: '是否确定删除',
+        scrollbar: true,
+        yes: function() {
+          $.ajax({
+            type: 'post',
+            url: _this.data.deleteUrl,
+            data: data,
+            dataType: 'json',
+            success: function(res) {
+              if (res.retcode == 0) {
+                // 成功
+                _this.getList(function() {
+                  _this.data.isPaginationLoaded = true;
+                  _this.pagination();
+                });
+                return dialog.success(res.msg);
+              } else {
+                // 失败
+                return dialog.error(res.msg);
+              }
+            }
+          });
+        }
+      });
+    },
+
+    // 搜索数据
+    search() {
+      var _this = this;
+      // 获取查询条件
+      var homeNav = $('select[name="catid"]').val();
+      var title = $('input[name="title"]').val();
+
+      this.data.selectedHomeNav = homeNav; // 保存已选择数据，选择后固定选中值不变
+
+      // 设置查询条件
+      this.data.search = {
+        catid: { value: homeNav, operator: '=' },
+        title: { value: title, operator: '=' }
+      };
+
+      // 根据查询条件获取数据
+      this.getList(function() {
+        _this.data.isPaginationLoaded = true;
+        _this.pagination();
+      });
+    },
+
     // 修改或增加或删除文章数据
     modify:function(type) {
       var _this = this;
@@ -248,6 +331,7 @@
           data.search[i] = item;
         }
       }
+      // console.log('data: ', data);
 
       $.ajax({
         type: 'GET',
@@ -262,7 +346,7 @@
             _this.getHomeMenu();
             _this.transferData();
 
-            console.log('_this.data.articleList: ', _this.data.articleList);
+            // console.log('_this.data.articleList: ', _this.data.articleList);
             _this.data.pagination.total = res.data.total;
             _this.renderArticleList();
 
@@ -313,8 +397,26 @@
         _this.modify();
       });
 
+      // 提交编辑数据按钮
       $('#btn_edit_submit').click(function() {
         _this.modify();
+      });
+
+      // 提交查询按钮
+      $('#btn_search_submit').click(function() {
+        _this.search();
+      });
+
+      // 跳转到编辑页面
+      $('body').delegate('#edit', 'click', function() {
+        var id = $(this).data('id');
+        _this.jumpEditUrl(id);
+      });
+
+      // 删除数据
+      $('body').delegate('#delete', 'click', function() {
+        var id = $(this).data('id');
+        _this.delete(id);
       });
     },
 
@@ -326,7 +428,7 @@
       // 获取文章列表数据
       this.getList(function() {
         // 防止重复调用getList方法
-        _this.data.inPaginationLoaded = true;
+        _this.data.isPaginationLoaded = true;
         // 加载完数据后，显示分页条
         _this.pagination();
       });
@@ -342,6 +444,7 @@
       // 增加页面渲染标题数据和来源
       this.renderTitleColor();
       this.renderOrigin();
+      this.renderHomeNavs();
     },
 
     // 初始化

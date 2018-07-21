@@ -26,29 +26,21 @@
         <button id="add" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加 </button>
       </div>
       <div class="row">
-        <form action="/admin.php" method="get">
+        <div>
           <div class="col-md-3">
-            <div class="input-group">
-              <span class="input-group-addon">栏目</span>
-              <select class="form-control" name="catid">
-                <option value='' >全部分类</option>
-                <foreach name="webSiteMenu" item="sitenav">
-                  <option value="{$sitenav.menu_id}" >{$sitenav.name}</option>
-                </foreach>
-              </select>
-            </div>
+            <div class="input-group" id="index_home_navs"></div>
           </div>
-          <input type="hidden" name="c" value="content"/>
-          <input type="hidden" name="a" value="index"/>
+          <!-- <input type="hidden" name="c" value="content"/> -->
+          <!-- <input type="hidden" name="a" value="index"/> -->
           <div class="col-md-3">
             <div class="input-group">
               <input class="form-control" name="title" type="text" value="" placeholder="文章标题" />
                 <span class="input-group-btn">
-                  <button id="sub_data" type="submit" class="btn btn-primary"><i class="glyphicon glyphicon-search"></i></button>
+                  <button id="btn_search_submit" class="btn btn-primary"><i class="glyphicon glyphicon-search"></i></button>
                 </span>
             </div>
           </div>
-        </form>
+        </div>
       </div>
       <div class="row">
         <div class="col-lg-6">
@@ -110,6 +102,18 @@
 
 </div>
 <!-- /#wrapper -->
+<script id="index_home_navs_tpl" type="text/html">
+  <span class="input-group-addon">栏目</span>
+  <select class="form-control" name="catid">
+    <%for (var i = 0; i < homeNavs.length; i++) {%>
+      <%if (homeNavs[i].menu_id == selectedHomeNav) {%>
+        <option value="<%=homeNavs[i].menu_id%>" selected><%=homeNavs[i].name%></option>
+      <%} else {%>
+        <option value="<%=homeNavs[i].menu_id%>"><%=homeNavs[i].name%></option>
+      <%}%>
+    <%}%>
+  </select>
+</script>
 <script id="article_list_tpl" type="text/html">
   <%for (var i = 0; i < articleList.length; i++) {%>
     <tr>
@@ -131,11 +135,11 @@
       <td><%=articleList[i].create_time%></td>
       <!-- <td><span  attr-status="<if condition="$new['status'] eq 1">0<else/>1</if>"  attr-id="{$new.news_id}" class="sing_cursor singcms-on-off" id="singcms-on-off" >{$new.status|status}</span></td> -->
       <td>
-        <span attr-status="" attr-id="<%=articleList[i].news_id%>" class="sing_cursor singcms-on-off" id="singcms-on-off" ><%=articleList[i].status%></span>
+        <span attr-status="" data-id="<%=articleList[i].news_id%>" class="sing_cursor singcms-on-off" id="singcms-on-off" ><%=articleList[i].status%></span>
       </td>
       <td>
-        <span class="sing_cursor glyphicon glyphicon-edit" aria-hidden="true" id="singcms-edit" attr-id="{$new.news_id}" ></span>
-        <a href="javascript:void(0)" id="singcms-delete"  attr-id="{$new.news_id}"  attr-message="删除">
+        <span class="sing_cursor glyphicon glyphicon-edit" aria-hidden="true" id="edit" data-id="<%=articleList[i].news_id%>" ></span>
+        <a href="javascript:void(0)" id="delete"  data-id="<%=articleList[i].news_id%>"  attr-message="删除">
           <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
         </a>
         <a target="_blank" href="/index.php?c=detail&a=view&id={$new.news_id}" class="sing_cursor glyphicon glyphicon-eye-open" aria-hidden="true"  ></a>

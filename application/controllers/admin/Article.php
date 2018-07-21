@@ -143,25 +143,32 @@ class Article extends MY_Controller {
       // 修改
       $data['update_time'] = date('Y-m-d H:i:s');
       $data['update_user'] = $this->user['username'];
-      $article_id = $this->article->modify($data, $id);
+      $res = $this->article->modify($data, $id);
+      if ($res) {
+        // 更新成功，则$id为文章id，使用$id再去更新文章内容副表
+        $articleContentData['news_id'] = $id;
+        $articleContentData['update_time'] = date('Y-m-d H:i:s');
+        $articleContentData['update_user'] = $this->user['username'];
+        $content_id = $this->article->modifyContentData($articleContentData, $id);
+        if ($content_id) {
+          return show(0, '修改成功', $content_id);
+        } else {
+          return show(-1, '主表修改成功，副表修改失败', $content_id);
+        }
+      } else {
+        return show(-1, '修改失败'.$res);
+      }
     } else {
       // 新增
       $data['create_time'] = date('Y-m-d H:i:s');
       $data['create_user'] = $this->user['username'];
       $insert_id = $this->article->modify($data);
       if ($insert_id) {
+        // 增加成功，返回新增的文章id，使用文章id再去新增文章内容副表
         $articleContentData['news_id'] = $insert_id;
-        if ($id) {
-          // 修改 副表
-          $articleContentData['update_time'] = date('Y-m-d H:i:s');
-          $articleContentData['update_user'] = $this->user['username'];
-          $content_id = $this->article->modifyContentData($articleContentData, $id);
-        } else {
-          // 增加 副表
-          $articleContentData['create_time'] = date('Y-m-d H:i:s');
-          $articleContentData['create_user'] = $this->user['username'];
-          $content_id = $this->article->modifyContentData($articleContentData);
-        }
+        $articleContentData['create_time'] = date('Y-m-d H:i:s');
+        $articleContentData['create_user'] = $this->user['username'];
+        $content_id = $this->article->modifyContentData($articleContentData);
         if ($content_id) {
           return show(0, '新增成功', $content_id);
         } else {

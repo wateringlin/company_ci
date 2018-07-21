@@ -47,10 +47,11 @@
                 <input id="ajax_file_upload" type="file" multiple="true" >
                 <!-- 显示已上传的图片 -->
                 <img style="display: none" id="show_uploaded_img" src="" width="150" height="150">
-                <!-- 上传至后端的文件数据 -->
+                <!-- 上传至后端的文件数据；图片上传成功后回调里会填充图片路径到value字段 -->
                 <input id="file_uploaded_urls" name="thumb" type="hidden" multiple="true" value="">
               </div>
             </div>
+
             <!-- 标题颜色 begin -->
             <div class="form-group" id="title_color"></div>
             <!-- 标题颜色 end -->
@@ -60,6 +61,7 @@
             <!-- 来源 begin -->
             <div class="form-group" id="origin"></div>
             <!-- 来源 end -->
+
             <div class="form-group">
               <label for="inputPassword3" class="col-sm-2 control-label">内容:</label>
               <div class="col-sm-5">
