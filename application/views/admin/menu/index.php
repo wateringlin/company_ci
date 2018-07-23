@@ -19,7 +19,7 @@
                         <i class="fa fa-dashboard"></i>  <a href="<?php echo site_url('admin/menu');?>">菜单管理</a>
                     </li>
                     <li class="active">
-                        <i class="fa fa-table"></i>列表 
+                        <i class="fa fa-table"></i>列表测试
                     </li>
                 </ol>
             </div>
