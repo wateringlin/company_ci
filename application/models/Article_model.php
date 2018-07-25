@@ -69,7 +69,7 @@ class Article_model extends MY_Model {
     if (!$data || !is_array($data)) {
       return false;
     }
-    $this->table = 'cms_news_content';
+    $this->setTable('cms_news_content');
     if ($id) {
       // 修改文章内容副表
       $this->db->where('news_id', $id);
@@ -82,15 +82,29 @@ class Article_model extends MY_Model {
     }
   }
 
+  /**
+   * 根据文章id获取文章内容
+   */
   public function getContentById($id = '') {
     if (!$id) {
       return false;
     }
-    $this->table = 'cms_news_content';
+    $this->setTable('cms_news_content');
     $query = $this->db->where('news_id', $id)->get($this->table);
     $res = $query->result_array();
 
     return $res ? $res : false;
+  }
+
+  public function getDataByIds($data) {
+    if (!is_array($data)) {
+      return false;
+    }
+    // $this->db->where_in('id', $dataArr);
+    $query = $this->db->where_in('news_id', $data)->get($this->table);
+    $res = $query->result_array();
+
+    return $res ? $res : false;    
   }
 
 }

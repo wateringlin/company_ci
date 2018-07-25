@@ -3,7 +3,6 @@
 <div id="wrapper">
 
   <?php include VIEWPATH.'admin/include/nav.php';?>
-  <!-- <script src="/Public/js/kindeditor/kindeditor-all.js"></script> -->
   <div id="page-wrapper">
 
     <div class="container-fluid">

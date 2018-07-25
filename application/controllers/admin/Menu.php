@@ -128,7 +128,7 @@ class Menu extends MY_Controller {
     $data['update_time'] = date('Y-m-d H:i:s');
     $data['update_user'] = $this->user['username'];
 
-    $res = $this->menu->updateDataById($data, $id);
+    $res = $this->menu->modify($data, $id);
     if ($res) {
       return show(0, '删除成功', $res);
     } else {
@@ -150,7 +150,9 @@ class Menu extends MY_Controller {
         $data = array(
           'listorder' => intval($listorder)
         );
-        $res = $this->menu->updateDataById($data, $menu_id);
+        $data['update_time'] = date('Y-m-d H:i:s');
+        $data['update_user'] = $this->user['username'];
+        $res = $this->menu->modify($data, $menu_id);
         if ($res === false) {
           $errors[] = $menu_id;
         }

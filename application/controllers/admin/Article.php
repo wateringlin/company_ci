@@ -113,6 +113,9 @@ class Article extends MY_Controller {
     return $file_path;
   }
 
+  /**
+   * 获取前端栏目
+   */
   public function getHomeMenus() {
     $res = $this->article->getHomeMenus();
     if (!empty($res)) {
@@ -180,8 +183,109 @@ class Article extends MY_Controller {
     }
   }
 
+  /**
+   * 删除或改变状态，只是修改了数据的status值，不删除实际数据
+   */
+  public function delete() {
+    $id = $this->input->post('id', true);
+    if (!$id) {
+      return show(-1, 'id不能为空');
+    }
+    $data = $this->input->post('fields', true);
+    if (!in_array($data['status'], [-1, 0, 1])) {
+      return show(-1, '状态值不能为空');
+    }
+    $data['update_time'] = date('Y-m-d H:i:s');
+    $data['update_user'] = $this->user['username'];
+
+    $res = $this->article->modify($data, $id);
+    if ($res) {
+      // 更新成功，则$id为文章id，使用$id再去更新文章内容副表
+      $articleContentData['news_id'] = $id;
+      $articleContentData['update_time'] = date('Y-m-d H:i:s');
+      $articleContentData['update_user'] = $this->user['username'];
+      $content_id = $this->article->modifyContentData($articleContentData, $id);
+      if ($content_id) {
+        return show(0, '修改成功', $content_id);
+      } else {
+        return show(-1, '主表修改成功，副表修改失败', $content_id);
+      }
+    } else {
+      return show(-1, '修改失败'.$res);
+    }
+  }
+
+  /**
+   * 排序数据
+   */
+  public function sort() {
+    $data = $this->input->post('fields', true);
+    if (!$data) {
+      return show(-1, '排序数据不能为空');
+    }
+    $errors = array();
+    try{
+      foreach ($data as $news_id => $listorder) {
+        $data = array(
+          'listorder' => intval($listorder)
+        );
+        $data['update_time'] = date('Y-m-d H:i:s');
+        $data['update_user'] = $this->user['username'];
+        $res = $this->article->modify($data, $news_id);
+        if ($res === false) {
+          $errors[] = $news_id;
+        }
+      }
+    } catch(Exception $e) {
+      return show(-1, $e->getMessage());
+    }
+    if ($errors) {
+      return show(-1, '排序失败-'.implode(',', $error));
+    } else {
+      return show(0, '排序成功');
+    }
+  }
+
+  /**
+   * 将选中的文章推荐到相关推荐位中
+   */
+  public function push() {
+    // 获取前端传来数据
+    $position_id = $_POST['position_id'];
+    $push = $_POST['push'];
+    // 校验
+    if (!$position_id) {
+      return show (0, '没有选择推荐位');
+    }
+    if (!$push || !is_array($push)) {
+      return show(0, '请选择推荐的文章ID进行推荐');
+    }
+    // 根据传来的id数组获取对应文章
+    try {
+      $articles = $this->article->getDataByIds($push);
+      if (!$articles) {
+        return show(-1, '没有相关内容');
+      }
+      // 循环将相关文章插入推荐位内容表，position_id为前端已选择的推荐位
+      $this->load->model('position_content_model', 'position_content');
+      foreach ($articles as $article) {
+        $data = array(
+          'position_id' => $position_id,
+          'title' => $article['title'],
+          'thumb' => $article['thumb'],
+          'news_id' => $article['news_id'],
+          'status' => 1,
+          'create_time' => $article['create_time']
+        );
+        $res = $this->position_content->modify($data);
+      }
+    } catch(Exception $e) {
+      return show(-1, $e->getMessage());
+    }
+    
+    return show(0, '推荐成功');
+  }
 
 }
-
 
 

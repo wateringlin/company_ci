@@ -44,30 +44,13 @@
   }
 
   /**
-   * 根据id修改数据
-   * 1、更新status字段，即删除数据，未真正删除数据
-   * 2、更新listorder字段，实现排序
-   */
-  public function updateDataById($data, $id = '') {
-    if (!$data || !is_array($data) || !$id) {
-      return false;
-    }
-    $this->db->where('menu_id', $id);
-    $res = $this->db->update($this->table, $data);
-
-    return $res ? $this->db->affected_rows() : $res;
-  }
-
-  /**
    * 获取后端菜单数据
    */
   public function getAdminMenus() {
-    $data = array(
-      'status' => 1,
-      'type' => 1
-    );
-    $query = $this->db->where($data)->get($this->table);
-    $res = $query->result_array();
+    $data['status'] = ['value' => 1, 'operator' => '='];
+    $data['type'] = ['value' => 1, 'operator' => '='];
+    $data['orderby'] = ['value' => 'listorder desc, menu_id desc', 'operator' => 'orderby'];
+    $res = $this->findWhere($data);
     return $res;
   }
 

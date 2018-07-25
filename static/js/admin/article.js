@@ -12,6 +12,9 @@
       homeMenuUrl: G_BASE_URL + 'admin/article/getHomeMenus',
       modifyUrl: G_BASE_URL + 'admin/article/modify',
       deleteUrl: G_BASE_URL + 'admin/article/delete',
+      sortUrl: G_BASE_URL + 'admin/article/sort',
+      getPositionList: G_BASE_URL + 'admin/position/getAllList',
+      pushUrl: G_BASE_URL + 'admin/article/push',
 
       // 上传图片相关
       uploadSwfUrl: G_BASE_URL + 'static/js/party/uploadify.swf',
@@ -44,15 +47,18 @@
       },
 
       isAddPage: false,
-      selectedHomeNav: ''
+      selectedHomeNav: '',
 
+      positionList: [], // 推荐位列表数据
+      selectedPosition: 0
     },
 
-    // 跳转至新增页面
+    // 跳转到新增页面
     jumpAddUrl: function() {
       location.href = this.data.addUrl;
     },
 
+    // 跳转到编辑页面
     jumpEditUrl: function(id) {
       location.href = this.data.editUrl + '?id=' + id;
     },
@@ -141,8 +147,21 @@
       }
     },
 
-    //  根据前端栏目id获取前端栏目名称
-    getHomeNavName(articleItem) {
+    renderPositionList: function() {
+      var position_list_tpl = document.getElementById('position_list_tpl');
+      if (position_list_tpl) {
+        var tpl = position_list_tpl.innerHTML;
+        var data = {
+          positionList: this.data.positionList,
+          selectedPosition: this.data.selectedPosition
+        };
+        var html = template(tpl, data);
+        document.getElementById('position_list').innerHTML = html;
+      }
+    },
+
+    // 根据前端栏目id获取前端栏目名称
+    getHomeNavName: function(articleItem) {
       var catid = articleItem.catid;
       for (var i = 0; i < this.data.homeNavs.length; i++) {
         var item = this.data.homeNavs[i];
@@ -153,6 +172,59 @@
       }
       // 重新渲染页面
       this.renderArticleList();
+    },
+
+    // 获取全部推荐位
+    getPositionList: function() {
+      var _this = this;
+
+      $.ajax({
+        type: 'get',
+        url: this.data.getPositionList,
+        data: {},
+        dataType: 'json',
+        success: function(res) {
+          if (res.retcode === 0) {
+            // 成功
+            _this.data.positionList = res.data.data;
+            _this.renderPositionList();
+          } else {
+            // 失败
+            return dialog.error(res.msg);
+          }
+        }
+      });
+    },
+
+    pushArticleToPosition: function() {
+      // 获取要推送的推荐位
+      var position_id = $('select[name="position_id"]').val();
+      // 保存已选择推荐位，保持显示下拉框中被选中的值
+      this.data.selectedPosition = position_id;
+      // 获取要推送到相关推荐位的文章
+      var push = {};
+      $('input[name="pushcheck"]:checked').each(function(index) {
+        push[index] = $(this).val(); // {0:'18', 1:'19', ...}
+      });
+      // 设置发送到服务端的数据
+      var postData = {
+        position_id: position_id,
+        push: push
+      };
+      $.ajax({
+        type: 'post',
+        url: this.data.pushUrl,
+        data: postData,
+        dataType: 'json',
+        success: function(res) {
+          if (res.retcode === 0) {
+            // 成功
+            
+          } else {
+            // 失败
+          }
+        }
+      });
     },
 
     // 获取前端栏目数据
@@ -202,22 +274,56 @@
       this.renderArticleList();
     },
 
+    // 排序数据
+    sort: function() {
+      var _this = this;
+      var data = {};
+      // 通过form表单序列化获取填写的排序
+      var formData = $('#form_sort').serializeArray();
+      var postData = {};
+      $(formData).each(function() {
+        postData[this.name] = this.value;
+      });
+      data.fields = postData;
+
+      $.ajax({
+        type: 'post',
+        url: this.data.sortUrl,
+        data: data,
+        dataType: 'json',
+        success: function(res) {
+          if (res.retcode == 0) {
+            // 成功
+            // 更新数据列表
+            _this.getList(function() {
+              _this.data.isPaginationLoaded = true;
+              _this.pagination();
+            });
+            return dialog.success(res.msg);
+          } else {
+            // 失败
+            return dialog.error(res.msg);
+          }
+        }
+      });
+    },
+
     // 删除数据
-    delete: function(id) {
+    delete: function(id, type) {
       var _this = this;
       var data = {};
       data.id = id;
       data.fields = {
-        status: -1
+        status: type === 'delete' ? -1 : type
       };
 
       layer.open({
         type: 0,
-        title: '删除',
+        title: type === 'delete' ? '删除' : '状态',
         btn: ['是', '否'],
         icon: 3,
         closeBtn: 2,
-        content: '是否确定删除',
+        content: type === 'delete' ? '是否确定删除' : '是否确定改变状态',
         scrollbar: true,
         yes: function() {
           $.ajax({
@@ -250,7 +356,7 @@
       var homeNav = $('select[name="catid"]').val();
       var title = $('input[name="title"]').val();
 
-      this.data.selectedHomeNav = homeNav; // 保存已选择数据，选择后固定选中值不变
+      this.data.selectedHomeNav = homeNav; // 保存已选择推荐位，保持下拉框中选中的值
 
       // 设置查询条件
       this.data.search = {
@@ -265,7 +371,7 @@
       });
     },
 
-    // 修改或增加或删除文章数据
+    // 修改或增加文章数据
     modify:function(type) {
       var _this = this;
       var data = {};
@@ -274,6 +380,7 @@
       // 判断表单类型
       console.log('id: ', id);
       if (id) {
+        data.id = id;
         form = $('#form_edit');
       } else {
         form = $('#form_add');
@@ -288,26 +395,14 @@
       });
       data.fields = postData;
 
-      // 判断是修改、增加还是删除操作
-      var url = '';
-      if (id) {
-        data.id = id;
-        url = this.data.modifyUrl;
-        if (type === 'delete') {
-          url = this.data.deleteUrl;
-        }
-      } else {
-        url = this.data.modifyUrl;
-      }
-
       $.ajax({
         type: 'post',
-        url: url,
+        url: this.data.modifyUrl,
         data: data,
         dataType: 'json',
         success: function(res) {
           if (res.retcode == 0) {
-            // 成功
+            // 成功，跳转回列表页面
             return dialog.success(res.msg, _this.data.listUrl);
           } else {
             // 失败
@@ -413,16 +508,33 @@
         _this.jumpEditUrl(id);
       });
 
-      // 删除数据
+      // 删除数据，status -1为删除
       $('body').delegate('#delete', 'click', function() {
         var id = $(this).data('id');
-        _this.delete(id);
+        _this.delete(id, 'delete');
+      });
+
+      // 改变状态，status 0为关闭
+      $('body').delegate('#change_status', 'click', function() {
+        var id = $(this).data('id');
+        console.log('id');
+        var status = $(this).data('status') == '正常' ? 0 : 1;
+        console.log('1111');
+        _this.delete(id, status);
+      });
+
+      // 提交排序数据按钮
+      $('#btn_sort_submit').click(function() {
+        _this.sort();
+      });
+
+      $('body').delegate('#push', 'click', function() {
+        _this.pushArticleToPosition();
       });
     },
 
     // 获取数据列表
     initData: function() {
-      // 初始化富文本框
       var _this = this;
 
       // 获取文章列表数据
@@ -432,6 +544,8 @@
         // 加载完数据后，显示分页条
         _this.pagination();
       });
+
+      this.getPositionList();
       
       // 初始化富文本编辑器
       KindEditor.ready(function(K) {

@@ -105,6 +105,7 @@
     },
 
     // 删除数据
+    // 如果删除前端栏目，那么栏目关联的文章都得删除下架（待完善）
     delete: function(id) {
       var _this = this;
       var data = {};

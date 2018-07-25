@@ -46,12 +46,12 @@
         <div class="col-lg-6">
           <h3></h3>
           <div class="table-responsive">
-            <form id="singcms-listorder">
+            <form id="form_sort">
               <table class="table table-bordered table-hover singcms-table">
                 <thead>
                 <tr>
-                  <th id="singcms-checkbox-all" width="10"><input type="checkbox"/></th>
-                  <th width="14">排序</th><!--6.7-->
+                  <th id="singcms-checkbox-all">推送</th><!--<input type="checkbox"/>-->
+                  <th width="14">排序</th>
                   <th>id</th>
                   <th>标题</th>
                   <th>栏目</th>
@@ -62,37 +62,25 @@
                   <th>操作</th>
                 </tr>
                 </thead>
-                <tbody id="article_list">
-                
-
-                </tbody>
+                <tbody id="article_list"></tbody>
               </table>
               <nav>
-
-              <ul class="pagination" id="pagination"></ul>
-
-            </nav>
+                <!-- 分页条 -->
+                <ul class="pagination" id="pagination"></ul>
+              </nav>
               <div>
-                <button  id="button-listorder" type="button" class="btn btn-primary dropdown-toggle" ><span class="glyphicon glyphicon-resize-vertical" aria-hidden="true"></span>更新排序</button>
+                <button  id="btn_sort_submit" type="button" class="btn btn-primary dropdown-toggle" ><span class="glyphicon glyphicon-resize-vertical" aria-hidden="true"></span>更新排序</button>
               </div>
             </form>
-            <div class="input-group">
-              <select class="form-control" name="position_id" id="select-push">
-                <option value="0">请选择推荐位进行推送</option>
-                <foreach name="positions" item="position">
-                  <option value="{$position.id}">{$position.name}</option>
-                </foreach>
-              </select>
-              <button id="singcms-push" type="button" class="btn btn-primary">推送</button>
-            </div>
+
+            <!-- 推荐位推送 -->
+            <div class="input-group" id="position_list"></div>
 
           </div>
         </div>
 
       </div>
       <!-- /.row -->
-
-
 
     </div>
     <!-- /.container-fluid -->
@@ -121,31 +109,39 @@
         <input type="checkbox" name="pushcheck" value="<%=articleList[i].news_id%>">
       </td>
       <td>
-        <input size="4" type="text" name='listorder[<%=articleList[i].news_id%>]' value="<%=articleList[i].listorder%>"/>
-      </td><!--6.7-->
+        <input size="4" type="text" name='<%=articleList[i].news_id%>' value="<%=articleList[i].listorder%>"/>
+      </td>
       <td><%=articleList[i].news_id%></td>
       <td><%=articleList[i].title%></td>
-      <!-- <td>{$new.catid|getCatName=$webSiteMenu,###}</td> -->
       <td><%=articleList[i].catid%></td>
-      <!-- <td>{$new.copyfrom|getCopyFromById}</td> -->
       <td><%=articleList[i].copyfrom%></td>
-      <!-- <td>{$new.thumb|isThumb}</td> -->
       <td><%=articleList[i].thumb%></td>
-      <!-- <td>{$new.create_time|date="Y-m-d H:i",###}</td> -->
       <td><%=articleList[i].create_time%></td>
-      <!-- <td><span  attr-status="<if condition="$new['status'] eq 1">0<else/>1</if>"  attr-id="{$new.news_id}" class="sing_cursor singcms-on-off" id="singcms-on-off" >{$new.status|status}</span></td> -->
       <td>
-        <span attr-status="" data-id="<%=articleList[i].news_id%>" class="sing_cursor singcms-on-off" id="singcms-on-off" ><%=articleList[i].status%></span>
+        <span data-id="<%=articleList[i].news_id%>" class="sing_cursor singcms-on-off" id="change_status" data-status="<%=articleList[i].status%>"><%=articleList[i].status%></span>
       </td>
       <td>
         <span class="sing_cursor glyphicon glyphicon-edit" aria-hidden="true" id="edit" data-id="<%=articleList[i].news_id%>" ></span>
-        <a href="javascript:void(0)" id="delete"  data-id="<%=articleList[i].news_id%>"  attr-message="删除">
+        <a href="javascript:void(0)" id="delete"  data-id="<%=articleList[i].news_id%>" attr-message="删除">
           <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
         </a>
         <a target="_blank" href="/index.php?c=detail&a=view&id={$new.news_id}" class="sing_cursor glyphicon glyphicon-eye-open" aria-hidden="true"  ></a>
       </td>
     </tr>
   <%}%>
+</script>
+<script id="position_list_tpl" type="text/html">
+  <select class="form-control" name="position_id">
+    <option value="0">请选择推荐位进行推送</option>
+    <%for (var i = 0; i < positionList.length; i++) {%>
+      <%if (positionList[i].id == selectedPosition) {%>
+        <option value="<%=positionList[i].id%>" selected><%=positionList[i].name%></option>
+      <%} else {%>
+        <option value="<%=positionList[i].id%>"><%=positionList[i].name%></option>
+      <%}%>
+    <%}%>
+  </select>
+  <button id="push" type="button" class="btn btn-primary">推送</button>
 </script>
 <script src="<?php echo base_url();?>static/js/admin/article.js"></script>
 <?php include VIEWPATH.'admin/include/footer.php'?>

@@ -6,7 +6,7 @@
  class MY_Model extends CI_Model {
 
   protected $table; // 设置查询表
-  protected $primary_key = 'id';
+  protected $primary_key = 'id'; // 表主键，默认为id
 
   /**
    * 获取当前连接表名
@@ -128,5 +128,14 @@
     return $result;
   }
 
-
+  /**
+   * 根据条件查找数据
+   */
+  public function findWhere($where) {
+    $this->setSearchWhere($where);
+    $query = $this->db->get($this->table);
+    $res = $query->result_array();
+    // var_dump($this->db->last_query());
+    return $res ? $res : false;
+  }
  }
