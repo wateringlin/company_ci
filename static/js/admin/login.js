@@ -1,4 +1,5 @@
-var login = {
+;(function() {
+  var login = {
     check: function() {
       // 获取登录页面中的用户名和密码
       var username = $('input[name="username"]').val();
@@ -26,11 +27,25 @@ var login = {
           return dialog.error(res.msg);
         }
       }, 'json'); // 这里如果没加json的话，返回的如果是中文则还需要解析
+    },
+    bindEvents: function() {
+      $('#login').click(function() {
+        login.check();
+      });
+      $(document).keyup(function(event) {
+        if (event.keyCode == 13) {
+          login.check();
+        }
+      });
+    },
+    initData: function() {
+
+    },
+    init: function() {
+      this.bindEvents();
+      this.initData();
     }
   }
-  
-  $(function() {
-    $('#login').click(function() {
-      login.check();
-    })
-  })
+
+  login.init();
+})();
