@@ -80,7 +80,6 @@
               </div>
             </div>
 
-
             <div class="form-group">
               <div class="col-sm-offset-2 col-sm-10">
                 <button type="button" class="btn btn-default" id="btn_add_submit">提交</button>

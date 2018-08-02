@@ -15,7 +15,7 @@
   </div>
   <!-- Top Menu Items -->
   <ul class="nav navbar-right top-nav">
-    
+    <li id="toggle_menu_list" class="menu-list"><a href="javascript:void(0);">菜单列表</a></li>
     <li class="dropdown">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i>  <b class="caret"></b></a>
       <ul class="dropdown-menu">
@@ -31,7 +31,7 @@
     </li>
   </ul>
   <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
-  <div class="collapse navbar-collapse navbar-ex1-collapse">
+  <div id="nav_list" class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav side-nav nav_list">
       
       <?php foreach ($navs as $nav):?>

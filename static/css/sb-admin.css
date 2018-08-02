@@ -48,6 +48,10 @@ body {
     padding: 0 15px;
 }
 
+.top-nav .menu-list{
+    display: none;
+}
+
 .top-nav>li {
     display: inline-block;
     float: left;

@@ -28,10 +28,10 @@
       <div class="row">
         <div>
           <div class="col-md-3">
+            <!-- 搜索-栏目 begin -->
             <div class="input-group" id="index_home_navs"></div>
+            <!-- 搜索-栏目 end -->
           </div>
-          <!-- <input type="hidden" name="c" value="content"/> -->
-          <!-- <input type="hidden" name="a" value="index"/> -->
           <div class="col-md-3">
             <div class="input-group">
               <input class="form-control" name="title" type="text" value="" placeholder="文章标题" />

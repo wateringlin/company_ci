@@ -184,3 +184,30 @@ function parseRouteParams() {
     }
     return searchObj;
 }
+
+function isShowMenuListBtn() {
+    var $width = $(window).width();
+    var $menuList = $('#toggle_menu_list');
+    if ($width < 768) {
+        $menuList.show();
+    } else {
+        $menuList.hide();
+    }
+}
+
+isShowMenuListBtn();
+
+$(window).on('resize', function() {
+    isShowMenuListBtn();
+});
+
+$('#toggle_menu_list').on('click', function() {
+    var $display = $('#nav_list').css('display');
+    if ($display === 'none') {
+        $('#nav_list').slideDown(200);
+    } else {
+        $('#nav_list').slideUp(200);
+    }
+});
+
+
